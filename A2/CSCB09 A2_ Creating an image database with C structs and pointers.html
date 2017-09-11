@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0074)http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/a2.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+      <meta name="ROBOTS" content="NOARCHIVE">
+    <link rel="stylesheet" href="./CSCB09 A2_ Creating an image database with C structs and pointers_files/styles.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="./CSCB09 A2_ Creating an image database with C structs and pointers_files/print.css" type="text/css" media="print">
+  <!-- $Id: pagestart.html,v 1.1 2006/09/04 02:08:47 reid Exp $ -->
+    
+
+    <title>
+      CSCB09 A2: Creating an image database with C structs and pointers  
+    </title>
+  </head>
+
+  <body>
+
+<div class="title">
+    <h1>
+      Assignment 2: Creating an image database with C structs and pointers 
+    </h1>
+    </div>
+
+<div class="navigation">
+  <p><br><br><br>
+
+    <span class="links">
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/index.shtml">Home page</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/courseinfo.shtml">Course Info Sheet</a>  
+    <a href="https://piazza.com/class/j29k4eb91xu7jy">Piazza (DB)</a>
+    <a href="https://cms-pcrs.utsc.utoronto.ca/cscb09/content/quests">PCRS</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/lectures.shtml">Lecture Notes</a>  
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/labs.shtml">Labs</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/feedback.shtml">Anonymous Feedback</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/assignments.shtml">Assignments</a> 
+    <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a>
+    </span>
+    <br>
+
+    <!--
+    <span class="links">
+    <b> Course Work </b>
+    </span>
+    <br/>
+    -->
+
+    <!--
+    <span class="links">
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/examples.shtml">Examples</a>  
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/marks.shtml">Grades</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/tests.shtml">Tests</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/forms.shtml">Forms</a>
+    </span>
+    -->
+
+  </p>
+
+</div>
+
+
+<div class="content">
+
+  <!-- TODO: Update due date by campus -->
+  <h3>Due Date:  June 30, 2017, 6pm </h3>
+
+
+  <h2>Introduction</h2>
+  
+In this assignment you will practice C structs and pointers to implement a database for storing images.
+The database will allow users to query its contents to find all images that have particular attributes.
+More precisely, the database will keep track of three different attributes for each image:
+its predominant colour, shape and texture. 
+
+The database will support three different functions:
+<ul>
+<li>The user can add new images to the database by specifying the file name and the values for the three attributes.
+</li><li>The user can query the database by specifying the values for the three attributes and the database will return
+the names of all image files that match these attributes.
+</li><li> The user can ask to have the database contents printed to the screen (i.e. the names of all files stored in the
+database together with their attributes).
+</li></ul>
+
+
+<h2> A simple image database </h2>
+
+ Your job is to write a program called <tt> image_database</tt> that will read commands from the keyboard and execute them.
+ The program will support the following three commands:
+<ol>
+ <li> The user can insert a new image by typing the following command to specify the name of the file to be added 
+      and the value for each of the three attributes:
+      <pre> i att1_value att2_value att3_value filename </pre>
+      The <tt>i</tt> stands for insert. So for example to insert an image file tiny.ppm that is best desribed by the color/shape/texture 
+      attributes yellow, square, and shiny, the user would type:
+      <pre> i yellow square shiny tiny.ppm </pre>
+      <p>
+ </p></li><li> The user can ask the database to output the names of all files that match the attributes specified in the
+     <tt>q</tt> command (<tt>q</tt> for query) as follows:
+      <pre> q att1_value att2_value att3_value  </pre>
+      <p>
+      The database will output the names of all image files in the database with matching attributes on a single line.
+      E.g. if the database contains two images named i1.ppm and i2.ppm that have attributes yellow, square, and shiny
+      and the user types:
+      </p><pre> q yellow square shiny </pre>
+      then the database will output:
+      <pre> i1.ppm i2.ppm </pre>
+      If there are no images in the database with matching attributes, the database will print 
+      <pre>(NULL)
+      </pre>
+
+ </li><li> The user can ask the database to print all its contents organized by attribute values by simply typing p:
+      <pre> p  </pre>
+      The database will produce one line of output for each image in the database.
+      For example, if the only database contents are two images named i1.ppm and i2.ppm that have attributes yellow, square, and shiny
+      and one image named i3.ppm with attributes blue, round and shiny, the output would be:
+      <pre> blue round shiny i3.ppm </pre>
+      <pre> yellow square shiny i1.ppm</pre>
+      <pre> yellow square shiny i2.ppm</pre>
+
+      If there are no images in the database, i.e. the tree is empty, the database will print 
+      <pre>(NULL)
+      </pre>
+</li></ol>
+
+The details of how these commands work will be explained below in the description of Tasks 1-4 that you will implement.
+
+
+
+ <h3> Task 1: Processing user commands </h3>
+  <p>
+    The first task is to complete the main function in <tt>image_database.c</tt>, which is currently empty. 
+    You want to change it such that it keeps reading user commands from the keyboard (stdin) line by line using
+    fgets until EOF is reached. Each line is being tokenized by the function <tt>tokenize</tt>, which you will also need to complete,
+    to make it easier to determine which command the user is executing (<tt>i</tt>, <tt>q</tt> or <tt>p</tt>) and what the arguments 
+    to the function are (e.g. the three attribute values in the case of a <tt>q</tt> command).  
+    You may assume that no input line will be more than <tt> BUFFER_SIZE</tt> characters long.
+    For parsing, you will find the <tt>strtok</tt> function useful. Make sure to read and understand its man page.
+    </p><p>
+    The main function then checks whether the command is valid (i.e. it's one of <tt>i</tt>, <tt>q</tt> or <tt>p</tt>)
+    and whether the number of arguments for this command is correct. You only need to check for the number of arguments and
+    not whether the individual arguments make sense (e.g. whether a provided filename actually corresponds to an  existing file
+    or whether an attribute value is meaningful).
+    If a command is invalid or the number of arguments is incorrect, the program prints an error message to stderr: 
+    </p><pre>Invalid command.</pre> 
+
+    Otherwise the appropriate function to execute the command is
+    being called (i.e. either <tt>tree_insert</tt>, or <tt>tree_search</tt>, or <tt>tree_print</tt>) with the corresponding arguments. <p>
+
+  After handling a command or printing an error message, the program should continue reading commands from the keyboard.
+  
+
+ </p><h3> Task 2: Inserting an image into the database </h3>
+
+ Your next task is to write a function <tt>tree_insert</tt>, which will insert an image with a given set of
+ attributes into the database. 
+ If you take a look at the starter code, you will see that we have already
+ defined a struct <tt>struct TreeNode</tt> that will be used to represent a node in the tree:
+ <pre> struct TreeNode {
+        char *value;
+        struct TreeNode *sibling;
+        struct TreeNode *child;
+ };
+ </pre>
+ The database will maintain information about the files in the form of a tree and the struct represents
+ one node in the tree. Each level of the tree corresponds to one of the three attributes (color/shape/texture). 
+ The nodes in the bottom level, i.e. the leaf nodes, correspond to actual files. The <tt> value</tt> field of these nodes 
+ will be the filename. The <tt> child</tt> pointer will be NULL. The <tt> value</tt> field of the intermediate nodes
+ is used to hold the value of the corresponding attribute.  <p>
+
+ For example, the tree for a database that contains two files named i1.ppm and i2.ppm with attributes yellow, round, shiny 
+ and one file named i3.ppm with attributes yellow, square, shiny would look as follows:</p><p>
+
+ <img src="./CSCB09 A2_ Creating an image database with C structs and pointers_files/example.jpeg" alt="Example tree width=" 228"="" height="528" "="">
+
+</p><p>
+ The node at the top of the tree with the empty string as <tt>value</tt> is the root node, which the main function 
+ in the starter code is already creating for you. All other nodes will be created by <tt>tree_insert</tt> when the
+users inserts images into the database.
+ </p><p>
+ When inserting nodes in the lists, insertion should be done in sorted order based on string comparison with
+ <tt>strcmp</tt>. You do not have to handle the case where an image already exists in the database, i.e. you can 
+ assume that the image to be inserted does not already exist in the database.
+
+ </p><h3> Task 3: Querying the database </h3>
+
+ The next task is to complete the function <tt>tree_search</tt>, which will query the
+ database for images with the specified attributes. The output should be a list of all matching filenames printed 
+ to stdout in a single line. The filenames should be printed in sorted order, which should be straight-forward,
+ since in Task 2 we asked you to insert any elements into lists in sorted order.
+
+ <h3> Task 4: Printing the database contents </h3>
+
+ The final task is to complete the function tree_print, which will print the entire contents of the database. 
+ For each file in the database there will be one line in the output that has the following format:
+ <pre> att1_value att2_value att3_value filename
+ </pre> 
+
+ where att1_value, att2_value and att3_value are the values of the 3 attributes and the last field is the name of the file. 
+
+<h3> Starter Code </h3>
+We are providing a Makefile and five source code files as starter code, which you are expected to modify: 
+<ul>
+<li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/Makefile">Makefile </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/image_database.c"> image_database.c </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/tree.h"> tree.h </a> 
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/utils.h"> utils.h </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/tree.c"> tree.c </a> 
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A2/utils.c"> utils.c </a> 
+</li></ul>
+
+
+<h3> Some important hints </h3>
+
+  <p>
+    Here are a few things to remember as you implement and test the functions:
+
+    </p><ol>
+          
+      <li>  As in A1, it might be cumbersome for testing to enter all the commands at the keyboard. 
+            So instead you could create a file that has a series of commands (e.g. to add images to the
+            database) and then use input/output redirection to have your program read commands from the file
+            instead of the keyboard.
+
+     </li><li>    If you provide input by typing at the keyboard, you provide <tt>EOF</tt> by typing  <tt>ctrl-D</tt> 
+             in a new (empty) line.</li>
+
+    <li>   Make sure to carefully look over the starter code and any comments we provide in the code to help you
+           understand what you need to implement.
+
+    </li><li> You may want to add your own helper functions to tree.c.
+
+       </li><li>Test thoroughly before submitting a final version. We are using automated grading tools, so your program must compile and
+          run according to the specifications. In particular, your program must produce output in the specified format. 
+
+</li><li> Man pages are the best source of information for the system and library calls you need. Start by reading them carefully.
+     For example, you may want to start with the man pages for strcmp and strtok. Also remember that for the midterm and final
+     exam we will provide you with the man pages for any commands you need to use. So this is good practice for the exams as well.
+
+</li><li>
+    Build up functionality one small piece at a time and commit to svn often.
+
+  </li><li>
+    Check for errors on every system or library call that is not a print. Send any potential error messages to stderr.
+
+  </li><li>
+    Be very careful to initialize pointers to NULL and to make sure that you copy any strings that you use.
+
+    </li></ol>
+  <p></p>
+
+
+  <p></p>
+
+
+<h3>Submission and Marking</h3>
+
+  <p> We have created a new directory named A2 in your svn repository. To update your local copy of the svn repository, go into your local repo. This should be  <tt>~/cscb09/utorid</tt> if you followed A1 instructions, which also contains your A1 directory. If you type <tt> svn update </tt> inside <tt>~/cscb09/utorid</tt> the local repository will be updated to include your new A2 directory. This directory is empty. So you need to make sure to create all the files for A2 inside this A2 directory.
+Just as you did for A1, remember that you need to use <tt> svn add </tt> and then <tt> svn commit </tt> to make the new files part of your repository.
+
+  </p><p>
+    Your program must compile on a CS lab machine, so please test it there before submission. We will be using <tt>gcc</tt> to compile program with the flags <tt>-Wall</tt> and <tt>-std=gnu99</tt>, as demonstrated in the <tt>Makefile</tt>. Your program should not produce any error or warning messages when compiled. As in assignment 1, programs that do not compile will receive a 0. Programs that produce warning messages will be penalized.
+  </p>
+
+  <!-- TODO: Add note about peer feedback at UTM -->
+
+</div>
+<div class="spacer">
+
+  <!-- Google Analytics: default -->
+  <script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script><script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  try {
+    var pageTracker = _gat._getTracker("UA-6874918-2");
+    pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  
+
+
+</div></body></html>

@@ -1,0 +1,15 @@
+child process call exec() to open new program
+exec will create clone process with same process id to continute og process, og process stops if exec() suceeds
+pointer to file has number - file descriptor: open, close, read, write
+
+pipe need array or 2 int - int p[2]; pipe(p)
+gets 2 file descriptors back
+p[0] - read, p[1] - write
+
+put read under fork() != 0
+read will wait until there is something to be read and return how much bytes is read
+does parent after child (child == 0)
+
+before reading: close p[1], before writing: close p[0]
+
+

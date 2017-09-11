@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0074)http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A1/a1.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+      <meta name="ROBOTS" content="NOARCHIVE">
+    <link rel="stylesheet" href="./CSCB09 A1_ Fun with Basic C and Image Processing_files/styles.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="./CSCB09 A1_ Fun with Basic C and Image Processing_files/print.css" type="text/css" media="print">
+  <!-- $Id: pagestart.html,v 1.1 2006/09/04 02:08:47 reid Exp $ -->
+    
+
+    <title>
+      CSCB09 A1: Fun with Basic C and Image Processing
+    </title>
+  </head>
+
+  <body>
+
+<div class="title">
+    <h1>
+      Assignment 1: Fun with Basic C  and Image Processing
+    </h1>
+    </div>
+
+<div class="navigation">
+  <p><br><br><br>
+
+    <span class="links">
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/index.shtml">Home page</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/courseinfo.shtml">Course Info Sheet</a>  
+    <a href="https://piazza.com/class/j29k4eb91xu7jy">Piazza (DB)</a>
+    <a href="https://cms-pcrs.utsc.utoronto.ca/cscb09/content/quests">PCRS</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/lectures.shtml">Lecture Notes</a>  
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/labs.shtml">Labs</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/feedback.shtml">Anonymous Feedback</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/assignments.shtml">Assignments</a> 
+    <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a>
+    </span>
+    <br>
+
+    <!--
+    <span class="links">
+    <b> Course Work </b>
+    </span>
+    <br/>
+    -->
+
+    <!--
+    <span class="links">
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/examples.shtml">Examples</a>  
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/marks.shtml">Grades</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/tests.shtml">Tests</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/forms.shtml">Forms</a>
+    </span>
+    -->
+
+  </p>
+
+</div>
+
+
+<div class="content">
+
+  <!-- TODO: Update due date by campus -->
+  <h3>Due Date: May 31 @ 06:00 p.m.</h3>
+
+
+  <h2>Introduction</h2>
+  
+In this assignment you will practice your newly acquired C skills by implementing some functions for manipulating images.
+
+We will use the PPM (portable pix map) format, as it is one of the easiest to understand and process. 
+PPM is often used as an intermediary format, i.e. the lowest common denominator color image format, that nearly all other formats (e.g. jpg, gif, png)
+can be translated to and from. We're explaining how this format works in more detail below.
+
+<h2>The PPM Image Format</h2>
+      The PPM (or Portable Pix Map) image format allows for images that are encoded in human-readable ASCII text (as opposed to a binary format),
+      so the contents can be viewed in a text editor.   
+      You can think of an image as a matrix of pixels. Each pixel for a color image is encoded by three numbers representing the color
+      of the pixel, i.e. the corresponding red, green and blue (RGB) values of that pixel.
+      A PPM image file contains information on all the pixels in the image (in the body of the image file), preceded by a header.
+
+      The 8 lines below are a sample ppm file. You can download it <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A1/tinypix.ppm">here</a>, if you want to view it in a text editor. 
+      The first 3 lines comprise the header and the remaining lines the body.
+    <p>
+      </p><pre>	P3
+	4 4
+	255
+	0  0  0   100 0  0       0  0  0    255   0 255
+	0  0  0    0 255 175     0  0  0     0    0  0
+	0  0  0    0  0  0       0 15 175    0    0  0
+	255 0 255  0  0  0       0  0  0    255  255 255
+      </pre>
+      
+
+      <h3>Image Header</h3>
+      You can think of the image as having two parts, a <b>header</b> and a <b>body</b>.  The <b>header</b> consists of four enteries:
+      <pre>	P3
+	4 4
+	255
+      </pre>
+      <b>P3</b> is a "magic number".  It indicates what type of PPM image this is. For this assignment it will always be P3. P3 stands for
+      color and ASCII encoded images.<br>
+      Next comes the number of columns and the number of rows in the image (<b>4</b> x <b>4</b>). (The first
+      number refers to the number of columns and the second number to the number of rows).<br>
+      Finally, we have the maximum color value <b>255</b>.  This can be any value between zero and 65536, but a common value is 255.<br>
+
+      Note that in the sample file the four components (the magic number, # columns, # rows, maximum color) of the header are on three different lines.
+      This formatting is to improve human readability. The ppm standard only requires that the four components are all separated by at least 
+      one whitespace (e.g. a blank, a TAB, a newline).  
+      
+      <h3>Image Body</h3>
+      The <b>image body</b> contains the actual picture information.  Each pixel of the image is a tiny, colored square.  
+      The color is determined by how much red, green, and blue are present.  
+      So, <b>0 0 0</b> is the first color of the image, which is black, and the last pixel in the image is <b>255 255 255</b>, which is white.  
+      By varying the levels of the RGB values you can come up with any color in between. <br>
+
+      You can see that the body of the sample image above has four rows, and each row has 12 numbers, corresponding to the 4 pixels in each row 
+      (since the file has 4 columns and each pixel requires 3 numbers).<br>
+
+      Note that color values must be separated by at least one space, but there could be additional whitespace, which would be ignored by an image viewer.  
+      In the sample ppm above we used additional whitespace to format the image so that it is easy for a human to understand, but the 
+      computer doesn't care how much whitespace there is between pixels or the colors within a pixel. 
+      Also, in the sample ppm file above there is one line for each row of the matrix, i.e. we have all the pixels of one row of the matrix in one line.
+      We have done that for better readability, but the format does not require this. E.g. a valid ppm image could also have
+      all the pixels of the image (of all the rows in the matris) in one line, or on the other extreme each pixel in the file could be
+      on a separate line. The only constraint is that no line can be longer than 70 characters. 
+      The important thing is that the pixels are listed in the right order, starting with the elements of the first row of
+      the matrix, then the second row, and so on. <br>
+      
+
+
+      <h3>Putting it all together</h3>
+      The example image above would look something like this:<p>
+
+      <img src="./CSCB09 A1_ Fun with Basic C and Image Processing_files/example5000.png"></p><p>
+
+      Keep in mind, each square is one pixel, so the real thing is much smaller (the rendered image was blown up by 5000%).
+
+
+</p><p>
+For those of you who wish to have the experience of reading real documentation, the formal image specification can be found <a href="http://netpbm.sourceforge.net/doc/ppm.html">here</a>.  
+
+  </p><p>
+
+ </p><h2> A simple image editor </h2>
+
+ Your job is to write a program called <tt> image_editor</tt> that serves as a simple image editor that supports three different functions. 
+<ol>
+ <li> Red-removal: Takes an input image and removes the red from it.
+ </li><li> Black-white: Converting an input image to black and white.
+ </li><li> Instagram: The instagram function, which converts an image to a square image.
+</li></ol>
+
+Since we have not yet seen how to read and write to/from files, your program will expect to read the input image from STDIN, i.e. the keyboard.
+It will also expect exactly one command line argument, which specifies which of the three functions above it is supposed to execute on the
+input image. So the usage of your program will be as follows:
+
+  <pre>  Usage: image_editor OPTION 
+  </pre>
+
+where <tt>OPTION</tt> has to be one character, which is either <tt>1</tt> for red-removal, <tt>2</tt> for black and white conversion or <tt>3</tt> for the
+instagram function. <p>
+
+We are providing two files as starter code, which you are expected to modify: <br>
+
+<a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A1/image_editor.c"><tt>image_editor.c</tt></a> contains the main function of the program. At the moment this function does
+nothing, but this is where you will add code 
+to process the commandline argument and then call the corresponding image processing function. </p><p>
+
+<a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A1/image_processing.c"><tt>image_processing.c</tt></a> contains the skeletons of the three functions, which you will complete, such that they
+read the input image from the keyboard, perform the
+corresponding conversion and then use <tt>printf</tt> to write the output image to STDOUT (i.e.  the screen). 
+<br> 
+
+
+ </p><h3> Task 1: Command-line arguments </h3>
+  <p>
+    The first task is to complete the main function in <tt>image_editor.c</tt>. Add code to check the number of command-line arguments 
+    and the value provided as the first argument. An error message should be printed, if the user provides the wrong number of
+    arguments or if the argument is invalid (i.e. it is not one of either 1, 2, or 3), as follows: 
+
+  </p><pre>  Error: Expecting one command-line argument, which needs to be either 1, 2, or 3.</pre>
+  <p></p>
+
+  If an error message is printed, the program should terminate without trying to read and process an image.
+  Otherwise, if the command-line argument is ok, the main function should call the corresponding function to read the image and do the appropriate conversion. <p>
+  Processing of command line arguments will be covered in week 3 PCRS material, so you might want to wait with implementing
+  this part until we get there. 
+  
+
+ </p><h3> Task 2: The red remover </h3>
+
+ Your next task is to write a function <tt>remove_red()</tt> which will remove all the red from an image. 
+ The function reads an input image from the keyboard, sets the red value of each pixel in the input value to zero, and
+ prints the resulting image.  
+
+ <h3> Task 3: The black and white converter </h3>
+
+ The second task is to write a function <tt>convert_to_black_and_white()</tt>, which will convert an image from color to black and white.
+ Converting a pixel to black and white is done by averaging the values of all three color numbers for a pixel, the red, green and blue, and then replacing them all by that average. So if the three colors were 25, 75 and 250, the average would be 116, and all three numbers would become 116.
+ So the <tt>black_white()</tt> function reads an input image from the keyboard, converts it to black and white (by converting each pixel as described above) and then printing the new output image to STDOUT (i.e.  the screen). <br>
+
+You might wonder at this point what happens if the result of the division in computing the average is not an integer. 
+You will see once you have completed the week 3 PCRS prep, that when you divide an integer by another integer in C 
+the result will be an integer (if the result has a fractional part it will be truncated).
+We ask you to use this form of truncation when doing the division.
+
+ <h3> Task 4: The Instagram function </h3>
+
+ For those of you who remember, the signature feature of the original Instagram app was that it converted any image to a square image. You would upload a
+rectangular image of arbitrary dimensions and it would chop it to a square image. 
+That is the functionality that you are implementing in the third task of the assignment in a function called <tt>instagram_square()</tt>.  <br>
+
+The <tt> instagram_square()</tt> function reads an input image from the keyboard, and if necessary removes parts of it to make it square, and prints the new image. <br>
+
+When a file needs to be chopped to become square, your function will remove the right-most columns or bottom rows, depending
+on which one is the larger dimension.
+For example, an input image with 4 columns and 6 rows will be converted to a (<b>4</b> x <b>4</b>) image  by removing
+the last two rows of pixels.
+Similarly, an image with 6 columns and 4 rows will be converted to a (<b>4</b> x <b>4</b>) image by removing the
+last two columns (the pixels on the right side of the image)&gt;.<br>
+
+Remember that you will also have to modify the header to reflect the new dimensions of the image.
+
+
+
+
+<h3> Some important hints </h3>
+
+  <p>
+    Here are a few things to remember as you implement and test the three functions:
+
+    </p><ol>
+          
+      <li>The input image is provided on STDIN, so you should use <tt>scanf</tt> to read input.</li>
+
+      <li> The converted output image should be printed to STDOUT, so you should use  <tt> printf</tt>. Your program should
+           not produce any other output, besides the output image. The only exception is an error message, in case there 
+           is a problem with the command line arguments.
+      
+      </li><li>  As it might be cumbersome to enter an input file at the keyboard, you can use a unix feature called
+            input/output redirection to make life easier. By default, standard input (STDIN) is 
+            connected to the terminal keyboard. But you can use the input redirection operator (<tt>&lt;</tt>)
+            to connect the STDIN for a program to a file instead. For example, by running your program <tt>image_editor</tt> as follows:
+            <pre> ./image_editor i  &lt; sample_file.ppm </pre> 
+            your program, when executing scanf, will be reading from the file named <tt>sample_file.ppm</tt> instead of the keyboard.
+            All the contents of the file will appear to your program as if they were entered from the keyboard.
+
+     </li><li>    If you provide input by typing at the keyboard, you terminate the input (provide <tt>EOF</tt>) by typing  <tt>ctrl-D</tt>  in a new (empty) line.</li>
+
+      
+      <li>Start by testing with small files, such as the sample ppm we have used above and make sure things work as expected.
+          </li>
+
+       <li>  Once things seem to be working for small files, you can try larger ones. We will provide a number of sample ppm files
+             for you to play with. </li>
+       <li> You might be tempted to use an array to first read the entire input image and store the pixels of the input image
+            in the array, and then do another pass over the array to produce the output file. 
+            This has some problems. One is that you will be using up more memory than necessary, as you can implement
+            all the functionality without creating an array that contains the image pixels. 
+            The other one is that we have not yet seen how to dynamically allocate arrays with a size that is not known
+            before the program is run: 
+            Since you don't know before hand how large an image will be, you don't know how to declare an array of
+            the proper size in your code. 
+
+       </li><li> Except for Task 1, which explicitly asks you to check for specific types of invalid input, you do not need to perform error checking. 
+            In particular, you may assume that the input file provided to your program is a valid ppm file. 
+
+       </li><li>   You can create your own ppm input files by converting your own images (e.g. in jpg format) to ppm images
+              using the <tt>mogrify</tt> command. It can be used to convert most common image formats to ppm, and vice versa.  <p>
+
+            If you're working on the lab machines, the following command will convert a jpg image file named input.jpg to a ppm file named input.ppm.<br>
+            </p><pre> mogrify -format ppm -compress none input.jpg </pre>
+
+            And the following command will convert a ppm image named input.ppm to a jpg image named input.jpg.
+            <pre> mogrify -format jpg -compress none input.ppm </pre>
+
+         <tt>mogrify</tt> is part of a software suite called imagemagick. 
+          If you want to run this on your own computer, you will have to
+       download imagemagick <a href="https://www.imagemagick.org/script/download.php">here</a> and install it. 
+
+       </li><li> If you want to view ppm files, you can either use mogrify to convert them to a more common format, like jpg, that any image viewer supports.
+          Or you can use an image viewer that supports ppm. It seems that on Macs new versions of Preview support ppm,  
+          on linux machines gimp can open ppm. 
+
+       </li><li> Your program should support any type of valid ppm P3 image as an input. In particular, there might be
+            an arbitrary number of whitespaces separating the different fields, and the row, column and max color 
+            fields could be any positive integer value. <br>
+
+             If you read the <a href="http://netpbm.sourceforge.net/doc/ppm.html">formal specifications</a> you will see that ppm supports a few
+            things we have not talked about, including for example comments (lines that start with a #). Your program is not required to support
+            any ppm features that are not discussed in this assignment handout. 
+
+        </li><li> Your program must output images that are valid in the P3 format, e.g. that means you must also output the
+           appropriate P3 header and not just the pixel data.
+
+       </li><li>Test thoroughly before submitting a final version. We are using automated grading tools, so your program must compile and
+          run according to the specifications. In particular, your program must be able to run on any valid ppm input file and
+          produce only valid ppm output files.
+
+    </li></ol>
+  <p></p>
+
+
+  <p></p>
+
+  <h2>Submission and Marking</h2>
+
+  <!-- TODO: Update submission method by campus -->
+  <p>
+      We are using automated grading tools to provide functional feedback, so it's important that your submission be fully submitted
+ and compile cleanly. 
+  </p>
+
+  <p>
+    Your program must compile on the lab machines or mathlab, so please test it there before submission. We will be using <tt>gcc</tt> to compile program with the flags <tt>-Wall</tt> and <tt>-std=c99</tt>:<br><br>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;<tt>gcc -Wall -std=c99 -o image_editor image_editor.c image_processing.c</tt><br><br>
+
+    Your program should not produce any error or warning messages when compiled. Programs that do not compile will receive a 0. Programs that produce warning messages will be penalized.
+  </p>
+
+   <p> For this assignment you will be working individually (rather than in teams). 
+ You will be submitting via svn  to <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a>. 
+     The instructions below will setup your svn work environment. If you are not already familiar with version control,
+make sure to review the lecture material from Week 2.  
+
+</p><p>Your first step should be to log into mathlab or any of the lab machines in BV 473 using your UtorID and password.
+Create a directory in your home directory called <tt>cscb09</tt> (directories are created using mkdir). Change
+into that directory (using cd). Verify that you are actually in the right directory (running pwd should return /cmshome/your_utor_id/cscb09).
+The following commands should accomplish the above:
+
+
+</p><pre>mkdir ~/cscb09</pre>
+<pre>cd ~/cscb09</pre><p></p>
+<pre>pwd</pre><p></p>
+
+Next you need to check out your SVN repo.
+To check out your SVN repo you need to log  in to <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a> and click on
+A1.  You will see on the right side a field saying "URL to your group's repository". The URL will probably have the form
+<tt>http://markus.utsc.utoronto.ca/svn/cscb09s17/your_utor_id</tt>. Your repository will only be generated by the Markus server
+once you log in and click on A1 and it might take a little while. So wait a bit before you try to check out your
+repo into the cscb09 directory you created earlier. You 
+check out your repo from the shell command-line using <tt> svn checkout </tt> with your repo's URL as the argument, 
+so this should look something like :
+
+<pre>svn co http://markus.utsc.utoronto.ca/svn/cscb09s17/your_utor_id
+</pre><p></p>
+
+You will be asked for a password which is your usual utorid password. You will find the repository in your current working directory (the place
+from where you were running the <tt> svn checkout</tt> command).
+It will be a directory named after your utorid
+and you will see that it contains a sub-directory called <tt>A1</tt>.
+(Use <tt>ls</tt> to check that the directory is there).
+This directory is a working copy of your svn repository. 
+
+<p>
+
+For this assignment you will need to submit two files: 
+<tt>image_editor.c</tt> and <tt>image_processing.c</tt>.
+
+You will need to create these two files inside the A1 directory in your repository.
+After you first create these files in your A1 directory you need to add them to your repository
+by running <tt>svn add</tt> inside your A1 directory.
+
+</p><pre> svn add image_editor.c image_processing.c </pre>
+
+As you work on these two files while implementing this assignment, you want to periodically
+upload your modifications to the svn server by running <tt> svn commit</tt>.
+You commit by running the following in your A1 directory (with a message of your choice):
+
+<pre> svn ci -m "Committing a new version of A1"</pre>
+
+You can log into <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a> to view the files it has received.
+<p> 
+When doing the marking, we will use the latest version of your A1 that was committed before the deadline.
+
+  <!-- TODO: Add note about peer feedback at UTM -->
+
+</p></div>
+<div class="spacer">
+
+  <!-- Google Analytics: default -->
+  <script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script><script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  try {
+    var pageTracker = _gat._getTracker("UA-6874918-2");
+    pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  
+
+
+</div></body></html>

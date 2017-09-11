@@ -1,0 +1,94 @@
+svn + markus
+MUST work on lab machine BV473/mathlab to receive full marks
+Credit on pcrs *required*
+
+% computer used are linux - 2%
+% desktops/laptops - 8% (includes mac)
+% tablets/smartphones - 95%
+% webservers - 65%
+% supercomputer - 98%
+
+space travel Ken Thompson @ bell labs 1969
+	wrote in assembler in one month
+
+OS support multi-user, multi-programs
+	- sharing computer resources
+	- manipulating files, processes, programs
+	- inter-process and inter-machine communication
+-------------------------------------------------------------------------------------------------
+|application programs (text editor, web browser, compiler)										|
+-------------------------------------------------------------------------------------------------
+|Operating System - software layer (between high level (programs) and low level (hardware)) 	|
+-------------------------------------------------------------------------------------------------
+|hardware (CPU(s, Memory, I/O devices)															|
+-------------------------------------------------------------------------------------------------
+Operating System
+	resource manager - allows proper use of resources (hardware, software, data)
+	control program (protection) - manage user for program to prevent error/improper use
+	turns hardware into beautiful attraction (
+	allows file to write to directory without overwriting something else (like a tree, actually acyclic graph)
+	
+Shell Commands
+	pwd - print working directory
+	ls <path> - list
+	ls -l <path> (list details of a file (long))
+	cd - change directory
+	man <command> - manual for command
+	stat - stats of a path
+	ln <path> <name> - create link (shorcut)
+	ln -s <path> <name> - create soft link (copy)
+	chmod <<u/g/o><+/-><r/w/x>> <path> - change permissions
+
+file
+	named collection of data with some attributes
+	inode stores info about file (whick disk block containing file by inode number)
+	pointers to contents of the file
+
+directory
+	special forms of file (with special content)
+	entry maps a file name to an inode
+	pointers to disk blocks to inodes
+	
+sharing files can be implemented by creaing new directory call *link* (pointer to another file or subdir)
+
+~ Alice											~Bob
+File Name | Inode | Type						File Name | Inode | Type
+------------------------						------------------------
+...		  |   ... | ...		bob after link		...		  |   ... | ...
+------------------------            - 			------------------------   
+ex1.c     | 42    | file						ex1.c     | 42    | file
+------------------------  						------------------------       
+...		  |   ... | ...							...		  |   ... | ...
+------------------------						------------------------
+
+bob modifies file, file would be overwritten
+bob removes file, file would not be removed for alice (vice versa) (link removed) 
+
+	
+~ Alice											~Bob
+File Name | Inode | Type						File Name | Inode | Type
+------------------------						------------------------
+...		  |   ... | ...	   bob after soft link	...		  |   ... | ...
+------------------------            - 			------------------------   
+ex1.c     | 42    | file						ex1.c     | 529   | link    path to ex1.c
+------------------------  						------------------------       
+...		  |   ... | ...							...		  |   ... | ...
+------------------------						------------------------
+
+if alice removes file, file IS removed (bob gets dangling reference, can still still from ls)
+	dangling reference is a reference to an object that no longer exists
+if bob removed only link is removed
+
+File permissions
+	-rwx-r-xr-x <owner> <group> ...
+	first -rwx - user
+	second rwx - group
+	last rwx - other
+	r - read content of file
+	w - edit file
+	execute - execute file
+
+Directory permissions
+	r - read content of directory and subdirectory (does not mean you can read file)
+	w - create and delete file in directory (not edit file)
+	execute - cd into and dir

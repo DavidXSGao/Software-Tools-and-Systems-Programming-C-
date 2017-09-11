@@ -1,0 +1,15 @@
+#include <stdio.h> - import standard input and output
+\n is *1* character
+%.xf - decimal places of float value
+%d - int
+gcc -Wall -o output hello.c  = compile with all warning, direct output of hello.c to "output"
+lf -F = lists executable files
+&var - location in memory of var (used in scanner);
+%lf - long float (used in scanner to read double)
+The number of arguments provided to scanf is one more than the number of format specifies provided in the first argument. (input, var)
+A function is called using its name and arguments
+A function prototype must include the function name, return type and a list of arguments.
+Variable names must be included in the argument list in the function definition.
+A stack frame, is a section of memory created when a function is executed, is removed when a function exits, stores variables associated with the function parameters, and variables declared in the function
+A[i] The address of A + (i * size of A[0]) bytes. The address of A[0] + (i * size of a single element of A) bytes.
+A has size X, set A[Y] where Y >= X, You risk writing over another variable in your program, It might appear to work perfectly fine., If you are lucky, you get an error so the mistake doesn't cause you headaches later.

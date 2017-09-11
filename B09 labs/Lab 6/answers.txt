@@ -1,0 +1,26 @@
+Q1: B and E are printed by both processes.  (Thanks to block buffering, if you redirect the output to a file, then A will be printed twice.)
+
+Q2: There are 8 possible orders:  
+ABDEBCE
+ABCEBDE
+ 
+ABBCDEE 
+ABBDCEE 
+ABBCEDE 
+ABBDECE 
+
+ABCBDEE 
+ABDBCEE
+
+Q3: 
+Argument -> number of processes
+2 -> 4 
+3 -> 8
+4 -> 16
+
+Q4:
+First parent creates 3 processes, first child creates 2 processes, children in the 3rd iteration of the loop create 1 process. 
+126->127->129->144
+     127->132
+126->128->131
+126->130

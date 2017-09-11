@@ -1,0 +1,13 @@
+typedef - creates an alias for an existing type
+macro - #define 
+      - pre-processor places constant in place of var before compile
+	  - if used to define function need to put parameter in brackets, otherwise order of operations matter
+
+system calls - read(), write(), exit()
+library calls - fgets(), fopen(), printf(), scanf()
+
+One of the reasons we check the return values on system calls is that the things that can make them fail are often outside of the control of the program.
+We check the return values of system calls because continuing to execute the program assuming that the system call succeeded may lead to a mysterious error later in the program execution.
+errno is a global integer variable that is set when a system call fails.
+When we ran a program that tried to access argv[1] and that argument wasn't provided by the user, we got a segmentation fault.
+A useful technique for testing when something isn't going to fit into a buffer, is to temporarily make the buffer size small, so your tests can be small.

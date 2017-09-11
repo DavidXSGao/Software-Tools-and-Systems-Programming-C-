@@ -1,0 +1,18 @@
+want fuction to return something and use it, must put return into heap
+#include <stdlib.h>
+int *pointer_to_heap = malloc(sizeof(int));
+
+malloc returns a void * because the same function is used to allocate memory for many different data types.
+malloc returns the address of the memory that is allocated but it doesn't know the type of the pointer that will be needed to access that memory properly.
+
+memory leak - value stored on heap not removed, can not be used (no pointer to it) after function returns, if function does not return var
+ENOMEM error - program runs out of memory
+
+void free (void *pointer) - function frees memory (used inside function that is used to set var to heap)
+
+The expression *p[0] is the same as p[0][0].
+allocate "top-down", free "bottom-up"
+should write free statement same time as malloc
+Memory left allocated on the heap at the end of a running program is automatically deallocated.
+
+The statement char *p = malloc(size); reserves size bytes of memory on the heap and sets the value of p to the address of this block of memory.

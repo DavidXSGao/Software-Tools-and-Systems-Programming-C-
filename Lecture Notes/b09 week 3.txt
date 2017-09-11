@@ -1,0 +1,15 @@
+a[i] == *(a + i)
+important to have type (adding i depends on type)
+initializing string:  char course_name[8] = {'c','s','c','b','0','9','\0'};
+'\0' null byte
+char course_name[8] = "cscb09h";
+type of course name = char *
+type of array of strings = char **
+strtol (str, pointer to store rest str past first long, base of number usually 10)
+
+memory:
+code
+static var (global var)
+dynamic data ↓
+unused data
+stack data  ↑ (function, local var)

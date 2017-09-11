@@ -1,0 +1,41 @@
+int *var = i - pointer var points to i
+%var - pointer
+*var - gets the value stored at the memory pointed to, dereference
+%c - char
+
+int *p = foo; ||||| int * p = foo; ||||| int* p = foo; ||||| int *p; p = foo;
+
+char * string = "str";
+void function(char * string, int integer, struct struct * s, int * array)
+function( string, int, &struct, array);
+
+(*var)++ - order of operations important
+
+to mess with a var in a function and not have function return a new var, make parameter pointer, pass in address
+*function that uses array must pointer as "array" and have size as a parameter*
+
+ int year[5] = {1992, 2015, 1965, 1990, 1984};
+   some_function(year);
+   // MARKER
+When the function call takes place, the value passed to some_function is only the address of year.
+It is possible for some_function to change the values in year but not its address.
+
+passing array to pointer only passes first element, however pointer can be indexed as array
+address of A[i] = address of A + (i * size of one element of A)  ^^^^^^^^^^^^^^^^^^^^^^^^^
+can add 1 to the address and start at second element
+
+int *pt = &i;
+int **pt_ptr = &pt;
+int *r= *pt_ptr;
+int k = **pt_ptr;
+
+When we want to pass an array of pointers to integers to a function, int ** is the type of the function parameter.
+A pointer to a pointer to an integer has type int **.
+The address of a pointer to an integer has type int **.
+
+
+integral variables (integers, chars, shorts, longs) are limited in range 
+floating point variables (floats, doubles, long doubles) are limited both in range and in precision
+type of the expression (right side of equal sign) depends on operand a
+(double) -  casting
+If want the result of an arithmetic expression to be of a different type than the values computed need to cast

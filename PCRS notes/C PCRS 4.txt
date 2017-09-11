@@ -1,0 +1,104 @@
+Struct
+data of the same type not needed
+members not elements
+dot notation not indicies
+
+	struct contact {
+  		char name[30];
+    	int phone_number;
+    	char address[30];
+	};
+	struct contact best_friend;
+    strcpy(best_friend.name, "Jane Doe");
+    best_friend.phone_number = 377177377;
+    strcpy(best_friend.address, "1337 University Avenue");
+
+passing array into function (pointer of first element of array) will change the array
+passing struct into function (copy of struct) will not change original struct
+returning struct in function is bad because 2 copies are made, bigger struct more noticible
+pass pointer to struct to modify original array
+
+pointer_of_struct->field = int;
+strcpy(pointer_of_struct->field, "Jane Doe");
+
+char *name;
+int number;
+char *address;
+update_contact(&friend, name, number, address);
+
+void update_contact(struct contact *c, char *new_name, int new_number, char *new_address){
+    strcpy((*c).name, new_name);
+    (*c).phone_number = new_number;
+    strcpy((*c).address, new_address);
+}
+
+FILE *fopen(const char *filename, const char *mode) -  mode = "r' - read , "w" - write to beginning, "a" - append
+
+char *fgets(char *str, int n, FILE *stream) - *str is string array to store output, n is number of characters it will read - 1, file or stdin
+
+#include <stdio.h>
+
+int main() {
+    FILE *scores_file, *output_file;
+    int error, total;
+    char name[81];
+  
+    scores_file = fopen("top10.txt", "r");
+    if (scores_file == NULL) {
+        fprintf(stderr, "Error opening input file\n");
+        return 1;
+    }
+  
+    output_file = fopen("names.txt", "w");
+    if (output_file == NULL) {
+        fprintf(stderr, "Error opening output file\n");
+        return 1;
+    }
+  
+    while (fscanf(scores_file, "%80s %d", name, &total) == 2) {
+        printf("Name: %s. Score: %d.\n", name, total);
+        fprintf(output_file, "%s\n", name);
+    }
+  
+    error = fclose(scores_file);
+    if (error != 0) {
+        fprintf(stderr, "fclose failed on input file\n");
+        return 1;
+    }
+
+    error = fclose(output_file);
+    if (error != 0) {
+        fprintf(stderr, "fclose failed on output file\n");
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
+
+read binary - binary files usually .dat, fopen("datfile.dat", "rb");
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream) - address of var/array, size of var, num of elements, file
+
+int numbers[] = {400, 800, 1200, 1600, 2000};
+data_file = fopen("array_data", "wb");
+fwrite(numbers, sizeof(int), 5, data_file);
+
+fread(numbers, sizeof(int), NUM_ELEMENTS, data_file); - pointer to array to hold var, size of var, num of elements, file
+populates an array with values from binary file
+
+od -A d -j 44 d2 short.wav  -  
+-A d = base 10, -j 44 = skip first 44 bytes due to header, d2 = file consists of two-byte values
+left most column, which bytes at
+
+c can add space between struct, always use sizeof(struct name) to find size of struct or could be wrong
+fwrite writes exact space, so pass in string will replace not used space with 0
+
+
+move file to where desired - int fseek(FILE *stream, long int offset, int whence) - file, how many bytes to move, 
+SEEK_SET - Beginning of file, SEEK_CUR - Current position of the file pointer, SEEK_END - End of file
+pass file back in to read/write from position
+
+
+

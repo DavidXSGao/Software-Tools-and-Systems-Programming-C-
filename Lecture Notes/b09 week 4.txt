@@ -1,0 +1,4 @@
+ROData - read only data - somewhere around static memory
+holds string literals
+char a[] = "array"; - address not stored 
+char *p = "pointer" - stack memory for pointer has address to string in ROData (can not modify data)

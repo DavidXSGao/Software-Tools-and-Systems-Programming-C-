@@ -1,0 +1,14 @@
+svn update -r <version>
+exit code - return 0 if no errors
+#define VAR value - pre processor/compiler will replace all VAR in code with value (usually constant)
+int takes 4 bytes (consecutively)
+char is 1 byte 
+array has contiguous chunk of memory that comtains list of same type *size not stored with array
+no runtime checking if array out of bound
+	-no errors, random sht happens
+
+hexidecimal
+0 1 2 3 4 5 6 7 8 9 A B C D E F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20
+
+1315 = 1x16^3+3*16^2+1*16^1+5*16^0
+

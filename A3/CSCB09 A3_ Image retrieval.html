@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0074)http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A3/a3.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+      <meta name="ROBOTS" content="NOARCHIVE">
+    <link rel="stylesheet" href="./CSCB09 A3_ Image retrieval_files/styles.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="./CSCB09 A3_ Image retrieval_files/print.css" type="text/css" media="print">
+  <!-- $Id: pagestart.html,v 1.1 2006/09/04 02:08:47 reid Exp $ -->
+    
+
+    <title>
+      CSCB09 A3: Image retrieval  
+    </title>
+  </head>
+
+  <body>
+
+<div class="title">
+    <h1>
+      Assignment 3: Image retrieval 
+    </h1>
+    </div>
+
+<div class="navigation">
+  <p><br><br><br>
+
+    <span class="links">
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/index.shtml">Home page</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/courseinfo.shtml">Course Info Sheet</a>  
+    <a href="https://piazza.com/class/j29k4eb91xu7jy">Piazza (DB)</a>
+    <a href="https://cms-pcrs.utsc.utoronto.ca/cscb09/content/quests">PCRS</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/lectures.shtml">Lecture Notes</a>  
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/labs.shtml">Labs</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/feedback.shtml">Anonymous Feedback</a>
+    <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/assignments.shtml">Assignments</a> 
+    <a href="https://markus.utsc.utoronto.ca/cscb09s17">Markus</a>
+    </span>
+    <br>
+
+    <!--
+    <span class="links">
+    <b> Course Work </b>
+    </span>
+    <br/>
+    -->
+
+    <!--
+    <span class="links">
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/examples.shtml">Examples</a>  
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/marks.shtml">Grades</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/tests.shtml">Tests</a>
+     <a href="http://www.cs.toronto.edu/~bianca/cscb09w17/forms.shtml">Forms</a>
+    </span>
+    -->
+
+  </p>
+
+</div>
+
+
+<div class="content">
+
+  <!-- TODO: Update due date by campus -->
+  <h3>Due Date:  July 29, 2017, 6pm </h3>
+
+
+  <h2>Introduction</h2>
+  
+Nowadays most search engines also provide some support for image retrieval, 
+which allows you, for example, to search the web for images that are similar to a given image.
+If a search engine used a single process to search a large number of images to find the most similar one
+it would take a very long time to get the results.
+For this assignment, you will write a parallel program using fork and pipes to search for similar
+images. 
+(However, you won't likely see any performance difference between using one process and many because the number and size
+of the images we are giving you are so small compared to the web-scale operations that search engines do.) <p>
+
+The main program will be provided with the name of a ppm image file and the name of the directory where
+we want to look for similar images. The program will search the directory for sub-directories
+and fork a new process for each sub-directory. Each child process will compare the original image to all the images
+in the sub-directory that it was assigned. It will then send to the parent process information on the most
+similar image in its sub-directory.
+
+</p><h2> Task 1: Helper functions for image comparison </h2>
+
+You will start by implementing two helper functions that will be needed for comparing
+two images. 
+
+<ul>
+<li> <tt>read_image</tt>  This function expects the name of a ppm P3 image file as an argument
+and will build a <tt>struct</tt> that represents this image. <tt>worker.h</tt> 
+already contains the definition for an <tt>Image</tt> struct (representing an image) and a <tt> Pixel</tt> struct (representing
+an individual pixel). An <tt>Image</tt> includes width, height, max value and a pointer to pixels. 
+To properly store the pixels for an image you will need to dynamically allocate an array of the
+proper size and make sure that the pixel pointer in the image struct points to it.
+<tt>read_image</tt> will make sure that the file starts with the magic number <tt>P3</tt>. If the file
+does not start with this magic number, <tt>read_image</tt>  will return NULL. If it does start with the correct magic number
+the function assumes that the file contains a properly formatted valid P3 image and does not need to do any further
+error checking. <br>
+
+We are providing a function <tt>print_image</tt> in the starter code that you can use to print an image based on an
+image struct that you created.
+
+</li><li> <tt> compare_images</tt> This function takes an <tt>Image</tt> struct and the filename of a P3 image as
+an argument. It will compute the similarity between the image in the struct and the image in the file.
+In reality, determining how similar two images are is a complex problem, which is in fact an active area of research.
+We will use a simple metric based on the Euclidean distance between two pixels and for simplicity work only 
+with images that have the same dimension (same width and height). 
+The starter code already contains a function <tt>eucl_distance</tt> that takes two pixels as input and
+returns their Euclidean distance. The smaller the returned value is the more similar the two pixels are.
+<tt> compare_images</tt> will return the average Euclidean distance between the pixels in the two images,
+i.e. it will compute all the pairwise Euclidean distances between the corresponding pixels in the two images 
+and then return the average of all these distances. 
+For example, if the first image consists of four pixels p1, p2, p3, p4 and the second image consists of
+four pixels pa, pb, pc, pd then the function will return 
+
+<pre> (eucl_distance(p1,pa) +  eucl_distance(p2,pb) + eucl_distance(p3,pc) + eucl_distance(p4,pd))/4 </pre>
+
+This approach only works if the two images have the same dimensions. If they don't have the same
+dimension, then <tt> compare_images</tt>
+returns <tt>FLT_MAX</tt> (the largest float number) as the distance between the two images. 
+</li></ul>
+
+<p>
+
+
+</p><h2> Task 2: A solution based on only one process </h2>
+  <p>
+Before writing the parallel version of the program we will start by completing a program <tt>one_process</tt> that
+uses only a single process, so you can make sure that the basic functionality of your image
+retrieval is working before diving into multiple processes.
+
+The starter code already contains a file <tt>one_process.c</tt> with a basic skeleton for the main
+program. When completed this program will be run from the command line as follows:
+
+</p><pre>./one_process -d DIR_NAME IMAGE_FILE </pre>
+<tt>IMAGE_FILE</tt> is the name of the image file that we compare all other files to.
+The -d option provides the name of the directory, where we search for similar images. This option
+is optional and the program will simply search the current working directory if it is not provided.
+When completed the program should look for images in all the sub-directories of <tt>DIR_NAME</tt> and
+find the one that is most similar to <tt>IMAGE_FILE</tt>. In the final parallel version of your program, each sub-directory will be
+handled by a separate process. But for this task, <tt>one_process</tt> will handle all the
+sub-directories itself.
+<p>
+
+The starter code for <tt>one_process.c</tt> already takes care of processing the command line arguments.
+It also implements the functionality to open the directory <tt>DIR_NAME</tt> and find all the sub-directories
+inside <tt>DIR_NAME</tt>. Right now it just prints the name of each sub-directory it finds. You want to change
+the implementation so that instead it will call the function <tt>process_dir</tt> for each sub-directory.
+ 
+</p><p> <tt>process_dir</tt> is a function you will need to complete. It searches the directory
+specified in its first argument for image files. It will use the helper function <tt>compare_images</tt>
+to compare each file in the directory to the image <tt>img</tt> that was passed to it as an argument
+and determine, which one is most similar. It will store its results (i.e. the information for the most
+similar image that it found) in a struct called <tt>CompRecord</tt>, which contains the name of the file
+and the distance it has to the original image (as computed by <tt>compare_images</tt>).
+Once it has processed all images in the directory it will return the <tt>CompRecord</tt> for the most
+similar one. If the sub-directory contains no image files it will return  a <tt>CompRecord</tt> with a
+distance of <tt>FLT_MAX</tt>.<br>
+
+The main function will keep track of the <tt>CompRecord</tt> with the smallest distance (highest similarity)
+to the original image and print the information about it to the screen. The print statement is
+already included in the starter code. Please don't change its format. <br>
+
+</p><p>
+In the parallel version of the program <tt>process_dir</tt> will be run by a child process that
+the parent process forked. Since <tt>process_dir</tt> will run in a separate process it will
+need a different way to pass back the <tt>CompRecord</tt> 
+than using the return value of the function.
+That is the purpose of the third argument of <tt>process_dir</tt>, which is an integer <tt>out_fd</tt>. 
+This argument is a file descriptor that will correspond to the writing end of the pipe the parent and child will share.
+In your single process program, you can experiment with writing to this file descriptor by calling
+<tt>process_dir</tt> with <tt>STDOUT_FILENO</tt> (the file descriptor corresponding to stdout) as its third argument.
+
+</p><p>
+In order to complete <tt>process_dir</tt> you will need to know how to find all the files in a directory.
+To do this you can follow the example we have already provided in the main program for iterating over all
+the sub-directories inside a directory. It uses the  <a href="https://linux.die.net/man/3/opendir"><tt>opendir</tt></a> and the <a href="https://linux.die.net/man/3/readdir"><tt>readdir</tt></a> functions and the <a href="https://linux.die.net/man/2/lstat">C library function <tt>stat</tt></a>. 
+<tt>stat</tt> fills in a <tt>struct stat</tt> with information about the file you ask about. The <tt>st_mode</tt> field of the <tt>struct stat</tt> is particularly interesting, since it can tell you whether a file is a directory or a regular file. 
+A series of macros help 
+you extract data from the field: <tt>S_ISDIR</tt>, which is used in the main function, can be used to check whether
+something is a directory and <tt>S_ISREG</tt> checks for a regular file. 
+
+</p><p>
+
+
+</p><h2> Task 3: A parallel version of the image retrieval program </h2>
+
+You have now set up all the core functionality for image retrieval. The only piece missing is to parallelize 
+the processing of all the sub-directories. Start by creating a new program called <tt>image_retrieval.c</tt>, that is 
+a copy of your <tt>one_process.c</tt>. Now modify it such that the main function forks a new process
+for each sub-directory. Before doing so it needs to set up a pipe that the child can use to write back
+the <tt>CompRecord</tt> for the most similar image in its sub-directory to the parent. 
+The parent will read all <tt>CompRecord</tt>s it retrieves from its children and print the information
+for the most similar one to the screen.
+Remember to also add a rule to your Makefile for the new  <tt>image_retrieval.c</tt> program.
+
+
+<h2> Starter Code </h2>
+We are providing a Makefile and three source code files as starter code, which you are expected to modify: 
+<ul>
+<li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A3/Makefile">Makefile </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A3/worker.h"> worker.h </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A3/worker.c"> worker.c </a>
+</li><li> <a href="http://www.cs.toronto.edu/~bianca/cscb09s17/posted_assignments/A3/one_process.c"> one_process.c </a> 
+</li></ul>
+
+You will also create and submit a new file called <tt> image_retrieval.c</tt>, which is a modification of
+<tt>one_process.c</tt> and implements the parallel (i.e. multi-process) solution to the problem. <br>
+
+Make sure to submit your version of all of the above files (including the Makefile) and your newly created
+image_retrieval.c.
+
+<h3> Some important hints </h3>
+
+  <p>
+    Here are a few things to remember as you implement and test the functions:
+
+    </p><ol>
+      <li> When implementing <tt>compare_images</tt> you have two choices for how to handle the
+           image in the file that is provided by the second argument. You could either create
+           a struct based on the file contents using <tt>read_image</tt> or you could use the approach
+           of A1 where you process the file and do the comparison as you are reading it, without
+           storing it in a struct. For this assignment we will accept both solutions, however if you
+           do create a struct remember to free all memory for it afterwards, since your program might 
+           be comparing a large number of large images, causing it to run out of memory (and losing marks
+           from the assignment).  
+          
+      </li><li>  When working on your implementation of <tt>process_dir</tt>, you can test it without setting up
+            pipes by passing it 
+            <tt>STDOUT_FILENO</tt> as a third argument, so you are writing to the screen, rather than a pipe. 
+            Just remember that <tt>write</tt>
+            writes in binary format, so if you write a number it will write the binary representation of the
+            number rather than the corresponding ASCII characters, which will look garbled on the screen.  
+            But if you write strings (e.g. the filename of the <tt>CompRec</tt> struct) they will show up ok.
+
+       </li><li> When you first compile the starter code, you will get a couple of warning messages about uninitialized/unused
+             variables. These only
+            occur because the code is not yet complete.
+
+       </li><li>Test thoroughly before submitting a final version. We are using automated grading tools, so your program must compile and
+          run according to the specifications. In particular, your program must produce output in the specified format. 
+
+
+</li><li>
+    As always, build up functionality one small piece at a time and commit to svn often.
+
+  </li><li>
+    Check for errors on every system or library call that is not a print. Send any potential error messages to stderr.
+
+  </li><li>
+    Be very careful to initialize pointers to NULL and to make sure that you copy any strings that you use.
+
+    </li></ol>
+  <p></p>
+
+
+  <p></p>
+
+
+<h3>Submission and Marking</h3>
+
+For this assignment you are allowed to work in teams of two students and a new repository will be created for each team. We have added A3 on Markus and configured it to allow you to form teams. If you log in to Markus and click on A3, you should see on the right side a window labelled "Group information" and under it a field "Form your own group". You can choose to work alone (by clicking the corresponding tab) or click on "Create Group", which will allow you to invite one other student to join your group. The person you invited needs to log in to Markus and accept your invite. After that Markus will create a new team repository and you should be able to see its URL when you log in to Markus. It might take a little while before Markus creates the new repository. So give it a bit of time before searching for the URL.
+
+  <p>
+    Your program must compile on a CS lab machine, so please test it there before submission. We will be using <tt>gcc</tt> to compile program with the <tt>-Wall</tt> flag, as demonstrated in the <tt>Makefile</tt>. Your program should not produce any error or warning messages when compiled. As previous assignments, programs that do not compile will receive a 0. Programs that produce warning messages will be penalized.
+  </p>
+
+  <!-- TODO: Add note about peer feedback at UTM -->
+
+</div>
+<div class="spacer">
+
+  <!-- Google Analytics: default -->
+  <script type="text/javascript">
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  </script><script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  try {
+    var pageTracker = _gat._getTracker("UA-6874918-2");
+    pageTracker._trackPageview();
+  } catch(err) {}
+  </script>
+  
+
+
+</div></body></html>
